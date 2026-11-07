@@ -13,7 +13,7 @@ vendor_id = 0x3A3C
 product_id = 0x0002
 
 # Встроенное описание платы RMK.
-board = "XIAO BLE"
+chip = "nrf52840"
 
 # Подключение central к компьютеру по USB.
 usb_enable = true
