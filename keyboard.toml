@@ -35,23 +35,22 @@ cols = 5
 row_offset = 4
 col_offset = 0
 
+# Батарея: стандартная схема Seeed XIAO nRF52840
+battery_adc_pin = "P0_31"
+adc_divider_measured = 510
+adc_divider_total = 1510
+battery_user_description = "Left"
+
 [split.central.matrix]
 matrix_type = "normal"
 row_pins = ["P0_02", "P0_03", "P0_28", "P0_29"]
 col_pins = ["P0_04", "P0_05", "P1_15", "P1_14", "P1_13"]
 row2col = false
 
-# Цепь измерения батареи стандартной XIAO.
 [[split.central.output]]
 pin = "P0_14"
-initial_state_active = false
-low_active = false
-
-[split.central.battery]
-battery_adc_pin = "P0_31"
-adc_divider_measured = 510
-adc_divider_total = 1510
-battery_user_description = "Left"
+initial_state_active = true
+low_active = true
 
 # --------------------------------------------------
 # Правая половина
@@ -63,23 +62,22 @@ cols = 5
 row_offset = 0
 col_offset = 0
 
+# Батарея: стандартная схема Seeed XIAO nRF52840
+battery_adc_pin = "P0_31"
+adc_divider_measured = 510
+adc_divider_total = 1510
+battery_user_description = "Right"
+
 [split.peripheral.matrix]
 matrix_type = "normal"
 row_pins = ["P0_02", "P0_03", "P0_28", "P0_29"]
 col_pins = ["P0_04", "P0_05", "P1_15", "P1_14", "P1_13"]
 row2col = false
 
-# Цепь измерения батареи стандартной XIAO.
 [[split.peripheral.output]]
 pin = "P0_14"
-initial_state_active = false
-low_active = false
-
-[split.peripheral.battery]
-battery_adc_pin = "P0_31"
-adc_divider_measured = 510
-adc_divider_total = 1510
-battery_user_description = "Right"
+initial_state_active = true
+low_active = true
 
 [ble]
 enabled = true
