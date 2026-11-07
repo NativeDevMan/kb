@@ -98,7 +98,6 @@ max_patterns_per_key = 4
 combo_max_num = 16
 combo_max_length = 4
 fork_max_num = 16
-macro_max_num = 16
 macro_space_size = 1024
 ble_profiles_num = 1
 
