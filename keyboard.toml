@@ -70,7 +70,7 @@ low_active = true
 
 [ble]
 enabled = true
-use_2m_phy = true
+use_2m_phy = false
 default_tx_power = 0
 passkey_entry = false
 
@@ -92,8 +92,8 @@ combo_max_length = 4
 fork_max_num = 16
 macro_space_size = 1024
 ble_profiles_num = 1
-mouse_key_interval = 10
-mouse_wheel_interval = 80
+mouse_key_interval = 20
+mouse_wheel_interval = 100
 split_central_sleep_timeout_seconds = 600
 
 [chip.nrf52840]
