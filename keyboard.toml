@@ -2,8 +2,8 @@
 
 [keyboard]
 name = "TOTEM"
-product_name = "TOTEM RMK"
-manufacturer = "TOTEM"
+manufacturer = "Y"
+serial_number = "vial:7a3c0002:000001"
 vendor_id = 0x3A3C
 product_id = 0x0002
 chip = "nrf52840"
@@ -25,17 +25,11 @@ layers = 12
 [split]
 connection = "ble"
 
-# --------------------------------------------------
-# Левая половина
-# --------------------------------------------------
-
 [split.central]
 rows = 4
 cols = 5
 row_offset = 4
 col_offset = 0
-
-# Батарея: стандартная схема Seeed XIAO nRF52840
 battery_adc_pin = "P0_31"
 adc_divider_measured = 510
 adc_divider_total = 1510
@@ -52,17 +46,11 @@ pin = "P0_14"
 initial_state_active = true
 low_active = true
 
-# --------------------------------------------------
-# Правая половина
-# --------------------------------------------------
-
 [[split.peripheral]]
 rows = 4
 cols = 5
 row_offset = 0
 col_offset = 0
-
-# Батарея: стандартная схема Seeed XIAO nRF52840
 battery_adc_pin = "P0_31"
 adc_divider_measured = 510
 adc_divider_total = 1510
@@ -81,10 +69,13 @@ low_active = true
 
 [ble]
 enabled = true
+use_2m_phy = false
+default_tx_power = 4
+passkey_entry = false
 
 [storage]
 enabled = true
-clear_storage = false
+clear_storage = true
 clear_layout = false
 
 [host]
@@ -100,10 +91,8 @@ combo_max_length = 4
 fork_max_num = 16
 macro_space_size = 1024
 ble_profiles_num = 1
-
-# Стандартные интервалы клавиш мыши в миллисекундах.
-mouse_key_interval = 20
-mouse_wheel_interval = 80
+mouse_key_interval = 4
+mouse_wheel_interval = 100
 
 [chip.nrf52840]
 dcdc_reg0 = false
