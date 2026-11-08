@@ -2,6 +2,7 @@
 
 [keyboard]
 name = "TOTEM"
+product_name = "TOTEM"
 manufacturer = "Y"
 serial_number = "vial:7a3c0002:000001"
 vendor_id = 0x3A3C
@@ -69,8 +70,8 @@ low_active = true
 
 [ble]
 enabled = true
-use_2m_phy = false
-default_tx_power = 4
+use_2m_phy = true
+default_tx_power = 0
 passkey_entry = false
 
 [storage]
@@ -91,9 +92,10 @@ combo_max_length = 4
 fork_max_num = 16
 macro_space_size = 1024
 ble_profiles_num = 1
-mouse_key_interval = 4
-mouse_wheel_interval = 100
+mouse_key_interval = 10
+mouse_wheel_interval = 80
+split_central_sleep_timeout_seconds = 600
 
 [chip.nrf52840]
 dcdc_reg0 = false
-dcdc_reg1 = false
+dcdc_reg1 = true
