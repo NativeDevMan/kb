@@ -1,15 +1,81 @@
-name: Build RMK firmware
+name: Build TOTEM RMK firmware
 
 on:
   workflow_dispatch:
   push:
-    paths:
-      - "**"
+
+env:
+  RUST_MIN_STACK: "67108864"
+  RUST_TOOLCHAIN: "1.96.0"
+
+  # Обходной параметр для генерации nRF Bluetooth bindings.
+  BINDGEN_EXTRA_CLANG_ARGS: "-ffreestanding -include stdint.h"
 
 jobs:
   build:
-    uses: rmk-rs/rmk/.github/workflows/user_build.yml@rmk-v0.9.0
-    with:
-      keyboard_toml_path: "keyboard.toml"
-      vial_json_path: "vial.json"
-      rmk_version: "0.9"
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.96.0
+
+      - name: Set up cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install build tools
+        run: cargo binstall rmkit flip-link cargo-make -y
+
+      - name: Install ARM GCC and Clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi clang libclang-dev libnewlib-dev
+
+      - name: Print tool versions
+        run: |
+          echo "BINDGEN_EXTRA_CLANG_ARGS=$BINDGEN_EXTRA_CLANG_ARGS"
+          rustc --version
+          cargo --version
+          rmkit --version
+          clang --version
+          arm-none-eabi-gcc --version
+
+      - name: Create firmware project
+        run: |
+          rmkit create \
+            --keyboard-toml-path keyboard.toml \
+            --vial-json-path vial.json \
+            --version 0.9 \
+            --target-dir rmk
+
+      - name: Pin generated Rust toolchain
+        working-directory: ./rmk
+        run: |
+          if [ -f rust-toolchain.toml ]; then
+            sed -i "s/^channel = .*/channel = \"$RUST_TOOLCHAIN\"/" rust-toolchain.toml
+          fi
+          rustup toolchain install "$RUST_TOOLCHAIN"
+
+      - name: Build firmware
+        working-directory: ./rmk
+        run: |
+          cargo build --release
+          cargo make uf2 --release
+
+      - name: Upload UF2 files
+        uses: actions/upload-artifact@v7
+        with:
+          name: totem-uf2
+          path: rmk/*.uf2
+          if-no-files-found: error
+
+      - name: Upload dependency lockfile
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cargo-lock
+          path: rmk/Cargo.lock
+          if-no-files-found: warn
