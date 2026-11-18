@@ -109,6 +109,45 @@ jobs:
           cargo tree -i rmk-macro | tee /tmp/rmk-macro-tree.txt
           grep -F "rmk-battery-source/rmk-macro" /tmp/rmk-macro-tree.txt
 
+      - name: Enable split BLE connection subrating
+        working-directory: ./rmk
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import tomllib
+
+          manifest = Path("Cargo.toml")
+          text = manifest.read_text()
+
+          # The RMK 0.9 nRF split template already enables async_matrix.
+          # Insert subrating into the same RMK dependency feature list.
+          old = '    "async_matrix",'
+          new = '    "async_matrix",\n    "subrating",'
+
+          if text.count(old) != 1:
+              raise SystemExit(
+                  "Unexpected Cargo.toml: expected exactly one async_matrix entry"
+              )
+
+          text = text.replace(old, new, 1)
+
+          # Fail the build if the resulting manifest is invalid or if either
+          # feature is not attached to the actual RMK dependency.
+          data = tomllib.loads(text)
+          features = data["dependencies"]["rmk"]["features"]
+
+          for feature in ("async_matrix", "subrating"):
+              if feature not in features:
+                  raise SystemExit(f"Missing RMK feature: {feature}")
+
+          manifest.write_text(text)
+          print("Enabled RMK features:", features)
+          PY
+
+          # Confirm Cargo actually resolves the feature, not just the text edit.
+          cargo tree -e features -i rmk | tee /tmp/rmk-features.txt
+          grep -F 'rmk feature "subrating"' /tmp/rmk-features.txt
+
       - name: Build firmware
         working-directory: ./rmk
         run: |
