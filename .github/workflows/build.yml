@@ -59,6 +59,56 @@ jobs:
           fi
           rustup toolchain install "$RUST_TOOLCHAIN"
 
+      - name: Improve XIAO battery ADC sampling
+        run: |
+          git clone --depth 1 --branch rmk-v0.9.0 \
+            https://github.com/rmk-rs/rmk.git rmk-battery-source
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("rmk-battery-source/rmk-macro/src/codegen/input_device/adc.rs")
+          text = path.read_text()
+
+          old_channel = "saadc::ChannelConfig::single_ended(p.#adc_pin_def.degrade_saadc())"
+          new_channel = """{
+              let mut channel = saadc::ChannelConfig::single_ended(
+                  p.#adc_pin_def.degrade_saadc()
+              );
+              channel.time = saadc::Time::_40US;
+              channel
+          }"""
+
+          old_config = "let saadc_config = saadc::Config::default();"
+          new_config = """let mut saadc_config = saadc::Config::default();
+                        saadc_config.oversample = saadc::Oversample::Over8x;"""
+
+          if text.count(old_channel) != 2:
+              raise SystemExit("Unexpected number of ADC channel definitions")
+          text = text.replace(old_channel, new_channel, 1)
+
+          if text.count(old_config) != 1:
+              raise SystemExit("Expected exactly one ADC configuration")
+          text = text.replace(old_config, new_config, 1)
+
+          path.write_text(text)
+
+          manifest = Path("rmk/Cargo.toml")
+          content = manifest.read_text()
+          if "[patch.crates-io]" in content:
+              raise SystemExit("Cargo.toml already has [patch.crates-io]")
+
+          with manifest.open("a") as f:
+              f.write(
+                  '\n[patch.crates-io]\n'
+                  'rmk-macro = { path = "../rmk-battery-source/rmk-macro" }\n'
+              )
+          PY
+
+          cd rmk
+          cargo tree -i rmk-macro | tee /tmp/rmk-macro-tree.txt
+          grep -F "rmk-battery-source/rmk-macro" /tmp/rmk-macro-tree.txt
+
       - name: Build firmware
         working-directory: ./rmk
         run: |
